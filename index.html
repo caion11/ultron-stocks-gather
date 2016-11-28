@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ultron Stocks Gather</title>
+  </head>
+<body>
+  <ul id="stocks"></ul>
+
+  <script type="text/javascript">
+    const ENDPOINT = 'http://myallies.com/api/quote/';
+    const STOCKS = ['AMZN', 'AAPL', 'TSLA', 'VALE', 'YHOO'];
+    const REFRESH_TIME = 30 * 1000;
+
+    var renderStockValue = function (stock, response) {
+      var item = document.querySelector("#stock-" + stock + " > span");
+
+      item.style.backgroundColor = "red";
+      item.innerHTML = "USD " + response["LastTradePriceOnly"] + " (" + response["ChangePercent"] + "%)";
+      item.style.backgroundColor = "transparent";
+    };
+
+    var fetchStockData = function (stock) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open("GET", ENDPOINT + stock);
+      xhr.send();
+
+      xhr.onload = function () {
+        renderStockValue(stock, JSON.parse(xhr.responseText));
+      }
+    };
+
+    var fetchAllStocks = function () {
+      STOCKS.forEach(fetchStockData);
+    };
+
+    var renderItem = function (stock) {
+      var list = document.querySelector("#stocks");
+
+      var item = document.createElement("li");
+      item.id = "stock-" + stock;
+      item.innerHTML = "Valor da ação " + stock + ": ";
+
+      var span = document.createElement("span");
+
+      item.appendChild(span);
+      list.appendChild(item);
+    };
+
+    var renderList = function () {
+      STOCKS.forEach(renderItem);
+    };
+
+    renderList();
+    fetchAllStocks();
+
+    setInterval(fetchAllStocks, REFRESH_TIME);
+  </script>
+</body>
+</html>
