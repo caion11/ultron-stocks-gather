@@ -10,35 +10,44 @@
     const ENDPOINT = 'http://myallies.com/api/quote/';
     const STOCKS = ['AMZN', 'AAPL', 'TSLA', 'VALE', 'PBR'];
     const REFRESH_TIME = 30 * 1000;
+
+    var renderDiff = function (value) {
+      var color = value < 0 ? "red" : value == 0 ? "black" : "green";
+      return " <b style=\"color: " + color + "\">(" + value + "%)</b>";
+    };
+
     var renderStockValue = function (stock, response) {
       var item = document.querySelector("#stock-" + stock + " > span");
-      item.style.backgroundColor = "red"; ///////////////q?
-      item.innerHTML = "USD " + response["LastTradePriceOnly"] + " (" + response["ChangePercent"] + "%)" + " (" + response["CompanyName"] + ")" ;
-      item.style.backgroundColor = "transparent";
+      item.innerHTML = "(" + response["CompanyName"] + "): USD " + response["LastTradePriceOnly"] + renderDiff(response["ChangePercent"]);
     };
+
     var fetchStockData = function (stock) {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", ENDPOINT + stock);
       xhr.send();
       xhr.onload = function () {
         renderStockValue(stock, JSON.parse(xhr.responseText));
-      }
+      };
     };
+
     var fetchAllStocks = function () {
       STOCKS.forEach(fetchStockData);
     };
+
     var renderItem = function (stock) {
       var list = document.querySelector("#stocks");
       var item = document.createElement("li");
       item.id = "stock-" + stock;
-      item.innerHTML = "Última cotação da ação " + stock + ": ";
+      item.innerHTML = "Última cotação da ação " + stock + " ";
       var span = document.createElement("span");
       item.appendChild(span);
       list.appendChild(item);
     };
+
     var renderList = function () {
       STOCKS.forEach(renderItem);
     };
+
     renderList();
     fetchAllStocks();
     setInterval(fetchAllStocks, REFRESH_TIME);
